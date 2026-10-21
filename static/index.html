@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes App</title>
+    <style>
+        body{font-family:sans-serif;max-width:500px;margin:40px auto;padding:0 20px;}
+        form{display:flex;gap:8px;margin-bottom:20px;}
+        input{flex:1;padding:8px;}
+        button{padding:8px 16px;cursor:pointer;}
+        ul{list-style:none;padding:0;}
+        li{background:#f3f3f3;padding:10px;margin-bottom:8px;border-radius:4px;}
+    </style>
+</head>
+<body>
+    <h2>Заметки (Лаба 0)</h2>
+    <form id="noteForm">
+        <input type="text" id="noteInput" placeholder="Введите текст..." required>
+        <button type="submit">Добавить</button>
+    </form>
+    <ul id="notesList"></ul>
+
+    <script>
+        const list=document.getElementById('notesList');
+        const form=document.getElementById('noteForm');
+        const input=document.getElementById('noteInput');
+
+        async function loadNotes(){
+            const res=await fetch('/api/notes');
+            const data=await res.json();
+            list.innerHTML='';
+            data.forEach(n=>{
+                const li=document.createElement('li');
+                li.textContent=n.text;
+                list.appendChild(li);
+            });
+        }
+
+        form.onsubmit=async(e)=>{
+            e.preventDefault();
+            const text=input.value.trim();
+            if(!text)return;
+            await fetch('/api/notes',{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({text})
+            });
+            input.value='';
+            loadNotes();
+        };
+
+        loadNotes();
+    </script>
+</body>
+</html>
